@@ -7,6 +7,10 @@ public class Weather {
     private Wind wind;
     private Clouds clouds;
     private WeatherDesc[] weather;
+    private long dt;
+
+    public String date;
+    public String dateWeek;
 
     public System getSys() {
         return sys;
@@ -48,10 +52,7 @@ public class Weather {
 
 
 
-    private long dt;
 
-    public String date;
-    public String dateWeek;
 
     public String getCod() {
         return cod;
@@ -80,11 +81,6 @@ public class Weather {
     }
 
     public String dayOfWeek;
-
-
-
-
-
 
     public String getName() {
         return name;

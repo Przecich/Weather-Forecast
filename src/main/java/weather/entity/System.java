@@ -3,11 +3,13 @@ package weather.entity;
 public class System {
     String country;
     long sunrise;
+    long sunset;
+    String sunRise;
+    String sunSet;
 
     public String getCountry() {
         return country;
     }
-
     public void setCountry(String country) {
         this.country = country;
     }
@@ -44,7 +46,5 @@ public class System {
         this.sunSet = sunSet;
     }
 
-    long sunset;
-    String sunRise;
-    String sunSet;
+
 }

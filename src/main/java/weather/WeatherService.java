@@ -1,8 +1,7 @@
 package weather;
 
-import weather.entity.Weather;
-import weather.entity.WeatherForecast;
-import weather.entity.Zone;
+import com.google.gson.internal.ObjectConstructor;
+import weather.entity.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 public class WeatherService {
     Weather weather;
     private String timeZone;
+    public static int CURRENT_WEATHER = 0;
 
     public Weather[] getCurrentWeather(String cityName) throws ClientProtocolException, IOException {
 
@@ -40,8 +40,9 @@ public class WeatherService {
         Weather[] weathers;
 
         if (!weather.getCod().equals("502")) {
-            timeZone = getZoneId(weather.getCoord().getLat(), weather.getCoord().getLon(), weather.getDt());
-            weathers = getWeatherForecast(cityName, weather);
+            Coordinate cord = new Coordinate(weather.getCoord().getLat(), weather.getCoord().getLon());
+            timeZone = getZoneId(cord, weather.getDt());
+            weathers = getCompleteWeatherForecast(cityName, weather);
         } else {
             weathers = new Weather[]{weather};
         }
@@ -51,9 +52,9 @@ public class WeatherService {
     private void addWeatherFormatting(Weather weather) {
 
         String weatherCondition = weather.getWeather()[0].getDescription();
-        String upWeatherCondition = weatherCondition.substring(0, 1).toUpperCase() + weatherCondition.substring(1);
+        String upperCaseWeatherCondition = weatherCondition.substring(0, 1).toUpperCase() + weatherCondition.substring(1);
 
-        weather.getWeather()[0].setDescription(upWeatherCondition);
+        weather.getWeather()[0].setDescription(upperCaseWeatherCondition);
         weather.getMain().setCelsiusTemp((int) (weather.getMain().getTemp() - 273.15));
         weather.getWeather()[0].setIcon("res/icons/" + weather.getWeather()[0].getIcon() + ".png");
 
@@ -64,9 +65,10 @@ public class WeatherService {
         weather.dateWeek = getForecastTime(weather.getDt(), "dd.MM");
         weather.dayOfWeek = getForecastTime(weather.getDt(), "EEEE");
 
+
     }
 
-    private Weather[] getWeatherForecast(String name, Weather currentWeather) {
+    private Weather[] getCompleteWeatherForecast(String name, Weather currentWeather) {
 
 
         String line = getJSONResponse("http://api.openweathermap.org/data/2.5/forecast?q=" + name + "&APPID=18f5a5a69169c44e3cc45e6297f8014b");
@@ -82,7 +84,7 @@ public class WeatherService {
                 collect(Collectors.toList());
 
 
-        list.add(0, currentWeather);
+        list.add(CURRENT_WEATHER, currentWeather);
 
         Weather[] weathers = new Weather[4];
         weathers = list.toArray(weathers);
@@ -93,22 +95,22 @@ public class WeatherService {
         return weathers;
     }
 
+    private Weather[] getWeatherForecast(String name) {
+        String line = getJSONResponse("http://api.openweathermap.org/data/2.5/forecast?q=" + name + "&APPID=18f5a5a69169c44e3cc45e6297f8014b");
+        return ((WeatherForecast)parseJson(line,WeatherDesc.class)).getList();
+    }
+
     private String getForecastTime(Long timeStamp, String pattern) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         return Instant.ofEpochSecond(timeStamp).atZone(ZoneId.of(timeZone)).format(formatter);
     }
 
-    private String getZoneId(double lat, double lon, long timestamp) {
+    private String getZoneId(Coordinate coordinate, long timestamp) {
 
-
-        String line = getJSONResponse(JsonUtil.timeZoneUrl
-                + lat + "," + lon + "&timestamp=" + timestamp + JsonUtil.timeZoneKey);
-
-        final GsonBuilder builder = new GsonBuilder();
-        final Gson gson = builder.create();
-        Zone zone = gson.fromJson(line, Zone.class);
-
-        return zone.getTimeZoneId();
+        String json = getJSONResponse(JsonUtil.timeZoneUrl
+                + coordinate.getLat() + "," + coordinate.getLon() + "&timestamp=" +
+                timestamp + JsonUtil.timeZoneKey);
+        return ((Zone) parseJson(json, Zone.class)).getTimeZoneId();
 
     }
 
@@ -125,5 +127,18 @@ public class WeatherService {
             line = "";
         }
         return line;
+    }
+
+    private Object parseJson(String json, Class cl) {
+        final GsonBuilder builder = new GsonBuilder();
+        final Gson gson = builder.create();
+        try {
+            Object object = cl.newInstance();
+            object = gson.fromJson(json, cl);
+            return object;
+        } catch (Exception e) {
+            return new Object();
+        }
+
     }
 }

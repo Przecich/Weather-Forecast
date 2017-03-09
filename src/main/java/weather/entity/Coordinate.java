@@ -1,6 +1,10 @@
 package weather.entity;
 
 public class Coordinate {
+    public Coordinate(double lat,double lon){
+        this.lon=lon;
+        this.lat=lat;
+    }
     private double lon;
 
     public double getLat() {
