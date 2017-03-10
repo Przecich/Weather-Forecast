@@ -25,4 +25,9 @@ public class Coordinate {
 
     private double lat;
 
+    @Override
+    public String toString(){
+        return lat+","+lon;
+    }
+
 }

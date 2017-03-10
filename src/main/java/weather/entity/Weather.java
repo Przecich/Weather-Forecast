@@ -1,8 +1,14 @@
 package weather.entity;
 
+
+import weather.WeatherConnectionUtils;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 public class Weather {
-
-
+    private WeatherConnectionUtils jsonUtil = new WeatherConnectionUtils();
     private SimpleWeather main;
     private Wind wind;
     private Clouds clouds;
@@ -11,6 +17,43 @@ public class Weather {
 
     public String date;
     public String dateWeek;
+    private Coordinate coord;
+    public String name;
+    private System sys;
+    public String dayOfWeek;
+    public String cod;
+
+
+    public void addWeatherFormatting() {
+
+
+        String weatherCondition = getWeather()[0].getDescription();
+        String upperCaseWeatherCondition = weatherCondition.substring(0, 1).toUpperCase() + weatherCondition.substring(1);
+
+        getWeather()[0].setDescription(upperCaseWeatherCondition);
+        getMain().setCelsiusTemp((int) (getMain().getTemp() - 273.15));
+        getWeather()[0].setIcon("res/icons/" + getWeather()[0].getIcon() + ".png");
+
+        sys.setSunRise(getFormatedTime("HH:mm", sys.sunrise));
+        sys.setSunSet(getFormatedTime("HH:mm", sys.sunset));
+
+        date = getFormatedTime("EEEE HH:mm");
+        dateWeek = getFormatedTime("dd.MM");
+        dayOfWeek = getFormatedTime("EEEE");
+
+
+    }
+
+    public String getFormatedTime(String pattern) {
+        return getFormatedTime(pattern, dt);
+    }
+
+    public String getFormatedTime(String pattern, long unixTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return Instant.ofEpochSecond(unixTime).atZone(ZoneId.of(jsonUtil.timeZone)).format(formatter);
+
+    }
+
 
     public System getSys() {
         return sys;
@@ -20,7 +63,6 @@ public class Weather {
         this.sys = sys;
     }
 
-    private System sys;
 
     public Coordinate getCoord() {
         return coord;
@@ -29,9 +71,6 @@ public class Weather {
     public void setCoord(Coordinate coord) {
         this.coord = coord;
     }
-
-    private Coordinate coord;
-    public String name;
 
 
     public long getDt() {
@@ -51,9 +90,6 @@ public class Weather {
     }
 
 
-
-
-
     public String getCod() {
         return cod;
     }
@@ -62,7 +98,6 @@ public class Weather {
         this.cod = cod;
     }
 
-    public String cod;
 
     public String getDateWeek() {
         return dateWeek;
@@ -80,7 +115,6 @@ public class Weather {
         this.dayOfWeek = dayOfWeek;
     }
 
-    public String dayOfWeek;
 
     public String getName() {
         return name;
@@ -123,4 +157,5 @@ public class Weather {
     public void setMain(SimpleWeather main) {
         this.main = main;
     }
+
 }

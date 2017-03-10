@@ -315,17 +315,17 @@ google.maps.event.addDomListener(window, 'load', initialize);
     <div class="col-sm-4">
       <span class="glyphicon glyphicon-cloud logo-small"></span>
       <h4>Current Weather</h4>
-      <p>Lorem ipsum dolor sit amet..</p>
+      <p>Detailed data on current weather</p>
     </div>
     <div class="col-sm-4">
       <span class="glyphicon glyphicon-certificate logo-small"></span>
-      <h4>5 days forecast</h4>
-      <p>Lorem ipsum dolor sit amet..</p>
+      <h4>4 days forecast</h4>
+      <p>Basic 4 day forecast information</p>
     </div>
     <div class="col-sm-4">
-      <span class="glyphicon glyphicon-grain logo-small"></span>
-      <h4>someotherstufE</h4>
-      <p>Lorem ipsum dolor sit amet..</p>
+      <span class="glyphicon glyphicon-map-marker logo-small"></span>
+      <h4>Maps</h4>
+      <p>Location of given city</p>
     </div>
     </div>
     <br><br>

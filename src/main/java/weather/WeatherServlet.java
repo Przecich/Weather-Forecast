@@ -23,20 +23,11 @@ public class WeatherServlet extends HttpServlet {
 
         String action = req.getParameter("searchAction");
 
-        if (action != null) {
-            switch (action) {
-                case "searchById":
-                    //TODO implemnt searching by Id option
-                    //searchEmployeeById(req, resp);
-                    //not implemented
-                    break;
-                case "searchByCity":
-                    searchWeatherByCity(req, resp);
-                    break;
-            }
-        } else {
+        if (action!=null && action.equals("searchByCity")) {
+            searchWeatherByCity(req, resp);
+        }
+        else {
 
-            Weather result = new Weather();
             forwardWeatherData(req, resp, null);
         }
     }
@@ -45,9 +36,14 @@ public class WeatherServlet extends HttpServlet {
 
 
         String cityName = req.getParameter("cityName");
-        Weather[] weather = weatherService.getCurrentWeather(cityName);
+        try {
+            Weather[] weather = weatherService.getCompleteWeatherForecast(cityName);
+            forwardWeatherData(req, resp, weather);
+        }catch (IOException e){
+            forwardWeatherData(req, resp, null);
+        }
 
-        forwardWeatherData(req, resp, weather);
+
     }
 
     private void forwardWeatherData(HttpServletRequest req, HttpServletResponse resp, Weather[] weatherData)
